@@ -94,28 +94,28 @@ def customizePom(pom) {
         root.children().last() + {
             resolveStrategy = Closure.DELEGATE_FIRST
 
-            description 'Ekam, a unified test automation platform, helps you to get started with WEB | MOBILE | API Test Automation'
-            name 'Ekam'
-            url 'https://github.com/testvagrant/ekam'
+            description 'Ekam-logger, Logger for Ekam and related projects'
+            name 'Ekam Logger'
+            url 'https://github.com/testvagrant/ekam-logger'
             organization {
                 name 'com.testvagrant.ekam'
                 url 'https://github.com/testvagrant'
             }
             issueManagement {
                 system 'GitLab'
-                url 'https://github.com/testvagrant/ekam/issues'
+                url 'https://github.com/testvagrant/ekam-logger/issues'
             }
             licenses {
                 license {
                     name 'MIT License'
-                    url 'https://github.com/testvagrant/ekam/-/blob/master/LICENSE'
+                    url 'https://github.com/testvagrant/ekam-logger/-/blob/master/LICENSE'
                     distribution 'repo'
                 }
             }
             scm {
-                url 'https://github.com/testvagrant/ekam'
-                connection 'https://github.com/testvagrant/ekam.git'
-                developerConnection 'git@github.com:testvagrant/ekam.git'
+                url 'https://github.com/testvagrant/ekam-logger'
+                connection 'https://github.com/testvagrant/ekam-logger.git'
+                developerConnection 'git@github.com:testvagrant/ekam-logger.git'
             }
             developers {
                 developer {
