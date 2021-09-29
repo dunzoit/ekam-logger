@@ -1,0 +1,144 @@
+import groovy.lang.Closure
+import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.tasks.bundling.Jar
+import org.gradle.api.tasks.testing.Test
+
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'signing'
+}
+
+group 'com.testvagrant.ekam'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // logging
+    implementation 'org.slf4j:slf4j-api:1.7.32'
+    implementation 'ch.qos.logback:logback-core:1.2.5'
+    implementation 'ch.qos.logback:logback-classic:1.2.5'
+
+    // test
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+
+task sourceJar(type: Jar) {
+    classifier "sources"
+    from sourceSets.main.allJava
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier "javadoc"
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives jar
+    archives sourceJar
+    archives javadocJar
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            customizePom(pom)
+            groupId 'com.testvagrant.ekam'
+            artifactId 'ekam-logger'
+            version '0.1.0-alpha'
+
+            from components.java
+
+            artifact(sourceJar) {
+                classifier = 'sources'
+            }
+            artifact(javadocJar) {
+                classifier = 'javadoc'
+            }
+
+        }
+    }
+
+    repositories {
+        maven {
+            url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            credentials {
+//                username System.getenv("sonatypeUsername")
+//                password System.getenv("sonatypePassword")
+                username sonatypeUsername
+                password sonatypePassword
+            }
+        }
+    }
+}
+
+def customizePom(pom) {
+    pom.withXml {
+        def root = asNode()
+
+        // eliminate test-scoped dependencies (no need in maven central POMs)
+        root.dependencies.removeAll { dep ->
+            dep.scope == "test"
+        }
+
+        // add all items necessary for maven central publication
+        root.children().last() + {
+            resolveStrategy = Closure.DELEGATE_FIRST
+
+            description 'Ekam, a unified test automation platform, helps you to get started with WEB | MOBILE | API Test Automation'
+            name 'Ekam'
+            url 'https://github.com/testvagrant/ekam'
+            organization {
+                name 'com.testvagrant.ekam'
+                url 'https://github.com/testvagrant'
+            }
+            issueManagement {
+                system 'GitLab'
+                url 'https://github.com/testvagrant/ekam/issues'
+            }
+            licenses {
+                license {
+                    name 'MIT License'
+                    url 'https://github.com/testvagrant/ekam/-/blob/master/LICENSE'
+                    distribution 'repo'
+                }
+            }
+            scm {
+                url 'https://github.com/testvagrant/ekam'
+                connection 'https://github.com/testvagrant/ekam.git'
+                developerConnection 'git@github.com:testvagrant/ekam.git'
+            }
+            developers {
+                developer {
+                    name 'Sudarshan GS'
+                }
+                developer {
+                    name 'Krishnanand B'
+                }
+            }
+        }
+    }
+}
+
+model {
+    tasks.generatePomFileForMavenJavaPublication {
+        destination = file("$buildDir/generated-pom.xml")
+    }
+}
+
+task runTests(type: Test) {
+    useTestNG()
+}
+
+signing {
+    sign publishing.publications
+}
